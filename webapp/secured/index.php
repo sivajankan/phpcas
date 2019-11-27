@@ -3,6 +3,23 @@
   $name = substr($email_tmp, 0, strpos($email_tmp, "@"));
 
   $cas_server = $_SERVER['CAS_SERVER'];
+
+  print_r($_SERVER);
+
+  echo "<pre>";
+
+    if (array_key_exists('REMOTE_USER', $_SERVER)) {
+        echo "REMOTE_USER = " . $_SERVER['REMOTE_USER'] . "<br>";
+    }
+
+    $headers = getallheaders();
+    foreach ($headers as $key => $value) {
+        if (strpos($key, 'CAS_') === 0) {
+            echo substr($key, 4) . " = " . $value . "<br>";
+        }
+    }
+
+  echo "</pre>";
 ?>
 
 <!DOCTYPE html>
@@ -20,5 +37,6 @@
 
 <div><?= $name; ?></div>
 <h3>Welcome</h3>
+
 </body>
 </html>

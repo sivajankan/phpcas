@@ -20,8 +20,15 @@ FROM php:7.2-apache
 RUN apt-get update && apt-get install -y \
   libapache2-mod-auth-cas
 
+#mod_auth_cas build with node->name for 'netid'
+#https://github.com/apereo/mod_auth_cas/blob/master/src/mod_auth_cas.c:1659
+#if (apr_strnatcmp(node->name, "user") == 0) { => if (apr_strnatcmp(node->name, "netid") == 0) {
+# COPY mod_auth_cas.so /usr/lib/apache2/modules/mod_auth_cas.so
+
+
 # Copy over the apache conf files
 COPY apache/ /etc/apache2/conf-enabled/
+#COPY auth-cas.load /etc/apache2/mods-available/
 
 # Copy over PHP settings
 COPY php/php.ini /usr/local/etc/php/
@@ -40,9 +47,9 @@ ENV APACHE_ENVVARS $APACHE_CONFDIR/envvars
 # make CustomLog (access log) go to stdout instead of files
 # and ErrorLog to stderr
 RUN find "$APACHE_CONFDIR" -type f -exec sed -ri ' \
-        s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
-        s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
-' '{}' ';'
+  s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
+  s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
+  ' '{}' ';'
 
 RUN a2enmod auth_cas
 
